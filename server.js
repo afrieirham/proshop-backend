@@ -31,4 +31,5 @@ app.use('/uploads', express.static(path.join(__dirname, '/uploads')))
 app.use(notFound)
 app.use(errorHandler)
 
-app.listen(5000, console.log('Server running on port 5000'.cyan.bold))
+const PORT = process.env.PORT || 5000
+app.listen(PORT, console.log(`Server running on port ${PORT}`.cyan.bold))
