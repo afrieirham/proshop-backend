@@ -68,6 +68,35 @@ exports.getUserProfile = asyncHandler(async (req, res) => {
   })
 })
 
+// @Route    POST /api/users/register
+// @Desc     Complete child account
+// @Access   Public
+exports.registerChildUser = asyncHandler(async (req, res) => {
+  const { password, token } = req.body
+
+  // Check if invited child exist
+  const user = await User.findOne({ inviteToken: token })
+  if (!user) throw new Error('Invalid link')
+
+  // Add user password
+  user.password = password
+  // Remove invite token
+  user.inviteToken = null
+
+  // Save user
+  const updatedUser = await user.save()
+
+  // Attempt user login
+  res.json({
+    _id: updatedUser._id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    isAdmin: updatedUser.isAdmin,
+    parent: updatedUser.parent,
+    token: generateToken(updatedUser._id),
+  })
+})
+
 // @Route    PUT /api/users/profile
 // @Desc     Update user profile
 // @Access   Private
