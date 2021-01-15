@@ -3,6 +3,26 @@ const User = require('../models/userModel')
 const generateToken = require('../utils/generateToken')
 const uuid = require('uuid')
 
+// @Route    GET /api/users/register/:token
+// @Desc     Validate invite token
+// @Access   Public
+exports.validateToken = asyncHandler(async (req, res) => {
+  const { token } = req.params
+
+  // Check if token is sent
+  if (!token) {
+    res.status(400)
+    throw new Error('Invalid link')
+  }
+
+  // Check if user with token exist
+  const user = await User.findOne({ inviteToken: token })
+  if (!user) throw new Error('Invalid link')
+
+  // Send response ok
+  res.status(200).json({ message: "Token valid" })
+})
+
 // @Route    POST /api/users/login
 // @Desc     Auth user & get token
 // @Access   Public

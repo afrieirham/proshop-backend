@@ -5,6 +5,7 @@ const {
   registerUser,
   registerChildUser,
   updateUserProfile,
+  validateToken,
   getUsers,
   deleteUser,
   updateUser,
@@ -14,6 +15,7 @@ const {
 const { protect, admin } = require('../middleware/authMiddleware')
 
 router.get('/', protect, admin, getUsers)
+router.get('/register/:token', validateToken)
 router.post('/', registerUser)
 router.post('/child', protect, registerChildUser)
 router.get('/profile', protect, getUserProfile)
