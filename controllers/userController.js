@@ -1,6 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const User = require('../models/userModel')
 const generateToken = require('../utils/generateToken')
+const uuid = require('uuid')
 
 // @Route    POST /api/users/login
 // @Desc     Auth user & get token
@@ -98,6 +99,36 @@ exports.registerUser = asyncHandler(async (req, res) => {
       isAdmin: user.isAdmin,
       token: generateToken(user._id),
     })
+  } else {
+    res.status(400)
+    throw new Error('Invalid user data')
+  }
+})
+
+// @Route    POST /api/users/child
+// @Desc     Register new child account
+// @Access   Private/User
+exports.registerChildUser = asyncHandler(async (req, res) => {
+  const { name, email } = req.body
+
+  const userExist = await User.findOne({ email })
+
+  if (userExist) {
+    res.status(400)
+    throw new Error('User already exist')
+  }
+
+  const newChildUser = {
+    name,
+    email,
+    parent: req.user._id,
+    inviteToken: uuid.v4(),
+  }
+
+  const user = await User.create(newChildUser)
+
+  if (user) {
+    res.status(201).json({ data: user, message: "Children created" })
   } else {
     res.status(400)
     throw new Error('Invalid user data')
