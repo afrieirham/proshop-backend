@@ -3,7 +3,7 @@ const {
   authUser,
   getUserProfile,
   registerUser,
-  registerChildUser,
+  inviteChild,
   updateUserProfile,
   validateToken,
   getUsers,
@@ -17,7 +17,7 @@ const { protect, admin } = require('../middleware/authMiddleware')
 router.get('/', protect, admin, getUsers)
 router.get('/register/:token', validateToken)
 router.post('/', registerUser)
-router.post('/child', protect, registerChildUser)
+router.post('/child', protect, inviteChild)
 router.get('/profile', protect, getUserProfile)
 router.put('/profile', protect, updateUserProfile)
 router.post('/login', authUser)

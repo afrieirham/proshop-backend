@@ -128,7 +128,7 @@ exports.registerUser = asyncHandler(async (req, res) => {
 // @Route    POST /api/users/child
 // @Desc     Register new child account
 // @Access   Private/User
-exports.registerChildUser = asyncHandler(async (req, res) => {
+exports.inviteChild = asyncHandler(async (req, res) => {
   const { name, email } = req.body
 
   const userExist = await User.findOne({ email })
