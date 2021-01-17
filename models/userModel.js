@@ -43,5 +43,13 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt)
 })
 
+userSchema.methods.toJSON = function () {
+  const rawUser = this.toObject()
+
+  // Remove password before sending
+  const { password, ...user } = rawUser
+  return user
+}
+
 const User = mongoose.model('User', userSchema)
 module.exports = User
