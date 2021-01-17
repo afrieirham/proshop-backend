@@ -1,6 +1,28 @@
 const asyncHandler = require('express-async-handler')
 const User = require('../models/userModel')
 const generateToken = require('../utils/generateToken')
+const uuid = require('uuid')
+const mail = require('../config/mail')
+
+// @Route    GET /api/users/register/:token
+// @Desc     Validate invite token
+// @Access   Public
+exports.validateToken = asyncHandler(async (req, res) => {
+  const { token } = req.params
+
+  // Check if token is sent
+  if (!token) {
+    res.status(400)
+    throw new Error('Invalid link')
+  }
+
+  // Check if user with token exist
+  const user = await User.findOne({ inviteToken: token })
+  if (!user) throw new Error('Invalid link')
+
+  // Send response ok
+  res.status(200).json({ message: "Token valid" })
+})
 
 // @Route    POST /api/users/login
 // @Desc     Auth user & get token
@@ -44,6 +66,35 @@ exports.getUserProfile = asyncHandler(async (req, res) => {
     name: user.name,
     email: user.email,
     isAdmin: user.isAdmin,
+  })
+})
+
+// @Route    POST /api/users/register
+// @Desc     Complete child account
+// @Access   Public
+exports.registerChildUser = asyncHandler(async (req, res) => {
+  const { password, token } = req.body
+
+  // Check if invited child exist
+  const user = await User.findOne({ inviteToken: token })
+  if (!user) throw new Error('Invalid link')
+
+  // Add user password
+  user.password = password
+  // Remove invite token
+  user.inviteToken = null
+
+  // Save user
+  const updatedUser = await user.save()
+
+  // Attempt user login
+  res.json({
+    _id: updatedUser._id,
+    name: updatedUser.name,
+    email: updatedUser.email,
+    isAdmin: updatedUser.isAdmin,
+    parent: updatedUser.parent,
+    token: generateToken(updatedUser._id),
   })
 })
 
@@ -104,11 +155,64 @@ exports.registerUser = asyncHandler(async (req, res) => {
   }
 })
 
+// @Route    POST /api/users/child
+// @Desc     Register new child account
+// @Access   Private/User
+exports.inviteChild = asyncHandler(async (req, res) => {
+  const { name, email } = req.body
+
+  const userExist = await User.findOne({ email })
+
+  if (userExist) {
+    res.status(400)
+    throw new Error('User already exist')
+  }
+
+  const token = uuid.v4()
+  const newChildUser = {
+    name,
+    email,
+    parent: req.user._id,
+    inviteToken: token,
+  }
+
+  const user = await User.create(newChildUser)
+
+  // Construct activation link
+  const link = `${process.env.FRONTEND_URL}/register/${token}`
+
+  // Send email to child
+  await mail.sendMail({
+    to: email,
+    subject: `${req.user.name} has invited you to Proshop`,
+    html: `
+    <h2>Hi there!</h2>
+    <p>Click the link to complete your account.</p>
+    <a href="${link}">${link}</a>
+    `,
+  })
+
+  if (user) {
+    res.status(201).json({ data: user, message: "Children created" })
+  } else {
+    res.status(400)
+    throw new Error('Invalid user data')
+  }
+})
+
 // @Route    GET /api/users
 // @Desc     Get all user
 // @Access   Private/Admin
 exports.getUsers = asyncHandler(async (req, res) => {
   const users = await User.find({})
+  res.json(users)
+})
+
+// @Route    GET /api/users/children
+// @Desc     Get all of my children
+// @Access   Private/Users
+exports.getChildren = asyncHandler(async (req, res) => {
+  const users = await User.find({ parent: req.user._id })
   res.json(users)
 })
 
