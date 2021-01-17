@@ -192,6 +192,14 @@ exports.getUsers = asyncHandler(async (req, res) => {
   res.json(users)
 })
 
+// @Route    GET /api/users/children
+// @Desc     Get all of my children
+// @Access   Private/Users
+exports.getChildren = asyncHandler(async (req, res) => {
+  const users = await User.find({ parent: req.user._id })
+  res.json(users)
+})
+
 // @Route    DELETE /api/users/:id
 // @Desc     Delete user
 // @Access   Private/Admin

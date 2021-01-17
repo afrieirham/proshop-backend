@@ -2,6 +2,7 @@ const router = require('express').Router()
 const {
   authUser,
   getUserProfile,
+  getChildren,
   registerUser,
   registerChildUser,
   inviteChild,
@@ -16,6 +17,7 @@ const {
 const { protect, admin } = require('../middleware/authMiddleware')
 
 router.get('/', protect, admin, getUsers)
+router.get('/children', protect, getChildren)
 router.get('/register/:token', validateToken)
 router.post('/', registerUser)
 router.post('/register', registerChildUser)
