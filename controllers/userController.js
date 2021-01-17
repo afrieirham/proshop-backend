@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler')
 const User = require('../models/userModel')
 const generateToken = require('../utils/generateToken')
 const uuid = require('uuid')
+const mail = require('../config/mail')
 
 // @Route    GET /api/users/register/:token
 // @Desc     Validate invite token
@@ -167,14 +168,29 @@ exports.inviteChild = asyncHandler(async (req, res) => {
     throw new Error('User already exist')
   }
 
+  const token = uuid.v4()
   const newChildUser = {
     name,
     email,
     parent: req.user._id,
-    inviteToken: uuid.v4(),
+    inviteToken: token,
   }
 
   const user = await User.create(newChildUser)
+
+  // Construct activation link
+  const link = `${process.env.FRONTEND_URL}/register/${token}`
+
+  // Send email to child
+  await mail.sendMail({
+    to: email,
+    subject: `${req.user.name} has invited you to Proshop`,
+    html: `
+    <h2>Hi there!</h2>
+    <p>Click the link to complete your account.</p>
+    <a href="${link}">${link}</a>
+    `,
+  })
 
   if (user) {
     res.status(201).json({ data: user, message: "Children created" })
