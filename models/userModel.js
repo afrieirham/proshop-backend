@@ -14,12 +14,18 @@ const userSchema = mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
     },
     isAdmin: {
       type: Boolean,
       required: true,
       default: false,
+    },
+    parent: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    },
+    inviteToken: {
+      type: String,
     },
   },
   { timestamps: true }
@@ -36,6 +42,14 @@ userSchema.pre('save', async function (next) {
   const salt = await bcrypt.genSalt(5)
   this.password = await bcrypt.hash(this.password, salt)
 })
+
+userSchema.methods.toJSON = function () {
+  const rawUser = this.toObject()
+
+  // Remove password before sending
+  const { password, ...user } = rawUser
+  return user
+}
 
 const User = mongoose.model('User', userSchema)
 module.exports = User
