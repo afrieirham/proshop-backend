@@ -35,13 +35,6 @@ exports.addOrderItems = asyncHandler(async (req, res) => {
 
   const createdOrder = await order.save()
 
-  let template = receiptTemplate(createdOrder)
-
-  await mail.sendMail({
-    to: req.user.email,
-    subject: `Your order (${createdOrder._id}) successfully created!`,
-    html: template,
-  })
   res.status(201).json(createdOrder)
 })
 
@@ -79,6 +72,15 @@ exports.updateOrderToPaid = asyncHandler(async (req, res) => {
   }
 
   const updatedOrder = await order.save()
+
+  let template = receiptTemplate(updatedOrder)
+
+  await mail.sendMail({
+    to: req.user.email,
+    subject: `Your order (${updatedOrder._id}) successfully paid!`,
+    html: template,
+  })
+
   res.json(updatedOrder)
 })
 
