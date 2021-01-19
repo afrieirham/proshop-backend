@@ -13,6 +13,7 @@ exports.addOrderItems = asyncHandler(async (req, res) => {
     taxPrice,
     shippingPrice,
     totalPrice,
+    parent,
   } = req.body
 
   if (orderItems && orderItems.length === 0) {
@@ -29,6 +30,7 @@ exports.addOrderItems = asyncHandler(async (req, res) => {
     taxPrice,
     shippingPrice,
     totalPrice,
+    parent,
   })
 
   const createdOrder = await order.save()
