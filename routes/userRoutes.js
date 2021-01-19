@@ -9,6 +9,7 @@ const {
   updateUserProfile,
   validateToken,
   getUsers,
+  getParent,
   deleteUser,
   updateUser,
   getUserById,
@@ -17,6 +18,7 @@ const {
 const { protect, admin } = require('../middleware/authMiddleware')
 
 router.get('/', protect, admin, getUsers)
+router.get('/parent', protect, getParent)
 router.get('/children', protect, getChildren)
 router.get('/register/:token', validateToken)
 router.post('/', registerUser)
