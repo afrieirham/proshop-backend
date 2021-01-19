@@ -1,5 +1,7 @@
 const asyncHandler = require('express-async-handler')
 const Order = require('../models/orderModel')
+const mail = require('../config/mail')
+const receiptTemplate = require('../templates/receiptTemplate')
 
 // @Route    POST /api/orders
 // @Desc     Create new order
@@ -34,6 +36,7 @@ exports.addOrderItems = asyncHandler(async (req, res) => {
   })
 
   const createdOrder = await order.save()
+
   res.status(201).json(createdOrder)
 })
 
@@ -71,6 +74,15 @@ exports.updateOrderToPaid = asyncHandler(async (req, res) => {
   }
 
   const updatedOrder = await order.save()
+
+  let template = receiptTemplate(updatedOrder)
+
+  await mail.sendMail({
+    to: req.user.email,
+    subject: `Your order (${updatedOrder._id}) successfully paid!`,
+    html: template,
+  })
+
   res.json(updatedOrder)
 })
 
