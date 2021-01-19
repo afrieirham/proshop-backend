@@ -46,8 +46,8 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.toJSON = function () {
   const rawUser = this.toObject()
 
-  // Remove password before sending
-  const { password, ...user } = rawUser
+  // Remove private info before sending
+  const { password, __v, ...user } = rawUser
   return user
 }
 
