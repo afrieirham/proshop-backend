@@ -58,12 +58,7 @@ exports.getUserProfile = asyncHandler(async (req, res) => {
   }
 
   const user = await User.findById(req.user._id)
-  res.json({
-    _id: user._id,
-    name: user.name,
-    email: user.email,
-    isAdmin: user.isAdmin,
-  })
+  res.json(user.toJSON())
 })
 
 // @Route    POST /api/users/register
