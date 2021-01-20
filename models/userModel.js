@@ -27,6 +27,7 @@ const userSchema = mongoose.Schema(
     inviteToken: {
       type: String,
     },
+    canReviewProduct: [{ type: String }]
   },
   { timestamps: true }
 )
