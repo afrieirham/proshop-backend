@@ -136,6 +136,14 @@ exports.getMyOrder = asyncHandler(async (req, res) => {
   res.json(orders)
 })
 
+// @Route    GET /api/orders/child
+// @Desc     Get logged in user's childs orders
+// @Access   Private
+exports.getChildOrder = asyncHandler(async (req, res) => {
+  const orders = await Order.find({ parent: req.user._id })
+  res.json(orders)
+})
+
 // @Route    GET /api/orders
 // @Desc     Get all orders
 // @Access   Private/Admin
