@@ -3,6 +3,7 @@ const Order = require('../models/orderModel')
 const Product = require('../models/productModel')
 const mail = require('../config/mail')
 const receiptTemplate = require('../templates/receiptTemplate')
+const User = require('../models/userModel')
 
 // @Route    POST /api/orders
 // @Desc     Create new order
@@ -109,6 +110,20 @@ exports.updateOrderToDelivered = asyncHandler(async (req, res) => {
   order.isDelivered = true
   order.deliveredAt = Date.now()
 
+  // Add can Review Product
+  const user = await User.findById(order.user)
+  const oldCanReviewProduct = user.canReviewProduct
+  const newCanReviewProduct = []
+  const orderItems = order.orderItems
+
+  for (const item of orderItems) {
+    newCanReviewProduct.push(String(item.product))
+  }
+
+  let tempArr = oldCanReviewProduct.concat(newCanReviewProduct)
+  user.canReviewProduct = [...new Set(tempArr)]
+
+  await user.save()
   const updatedOrder = await order.save()
   res.json(updatedOrder)
 })
