@@ -1,5 +1,6 @@
 const asyncHandler = require('express-async-handler')
 const Order = require('../models/orderModel')
+const Product = require('../models/productModel')
 const mail = require('../config/mail')
 const receiptTemplate = require('../templates/receiptTemplate')
 
@@ -34,6 +35,14 @@ exports.addOrderItems = asyncHandler(async (req, res) => {
     totalPrice,
     parent,
   })
+
+  // Update product quantity
+  const updateProductQuantity = orderItems.map(async (orderItem) => {
+    const product = await Product.findById(orderItem.product)
+    product.countInStock = product.countInStock - orderItem.qty
+    return product.save()
+  })
+  await Promise.all(updateProductQuantity)
 
   const createdOrder = await order.save()
 
