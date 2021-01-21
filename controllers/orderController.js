@@ -140,7 +140,7 @@ exports.getMyOrder = asyncHandler(async (req, res) => {
 // @Desc     Get logged in user's childs orders
 // @Access   Private
 exports.getChildOrder = asyncHandler(async (req, res) => {
-  const orders = await Order.find({ parent: req.user._id })
+  const orders = await Order.find({ parent: req.user._id }).populate('user', 'id name email')
   res.json(orders)
 })
 
