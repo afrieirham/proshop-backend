@@ -128,6 +128,44 @@ exports.updateOrderToDelivered = asyncHandler(async (req, res) => {
   res.json(updatedOrder)
 })
 
+// @Route    PUT /api/orders/:id/shipping
+// @Desc     Update shipping information
+// @Access   Private/Admin
+exports.updateShippingInfo = asyncHandler(async (req, res) => {
+  const { shippingInfo } = req.body
+  const order = await Order.findById(req.params.id)
+
+  if (!order) {
+    res.status(401)
+    throw new Error('Order not found')
+  }
+
+  // Add Shipping Information
+  order.shippingAddress = shippingInfo
+
+  const updatedOrder = await order.save()
+  res.json(updatedOrder)
+})
+
+// @Route    PUT /api/orders/:id/paymentMethod
+// @Desc     Update Payment Method
+// @Access   Private/Admin
+exports.updatePaymentMethod = asyncHandler(async (req, res) => {
+  const { paymentMethod } = req.body
+  const order = await Order.findById(req.params.id)
+
+  if (!order) {
+    res.status(401)
+    throw new Error('Order not found')
+  }
+
+  // Add Payment Method
+  order.paymentMethod = paymentMethod
+
+  const updatedOrder = await order.save()
+  res.json(updatedOrder)
+})
+
 // @Route    GET /api/orders/me
 // @Desc     Get logged in user orders
 // @Access   Private
